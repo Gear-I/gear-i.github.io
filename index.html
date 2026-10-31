@@ -219,6 +219,31 @@
         .tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
         .tag { background: var(--accent-bg); border: 1px solid var(--border); color: var(--ink-light); font-size: .72rem; padding: 2px 9px; border-radius: 20px; }
 
+        /* ── Latest blog posts ── */
+        #latest-posts[hidden] { display: none; }
+        .feat-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
+        @media (max-width: 480px) { .feat-grid { grid-template-columns: 1fr; } }
+        .feat {
+            display: flex; flex-direction: column; gap: 7px; background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--r-md); padding: 14px 15px; box-shadow: var(--sh-xs); min-width: 0;
+            transition: transform .15s, box-shadow .15s, border-color .15s;
+        }
+        .feat:hover { transform: translateY(-2px); border-color: var(--teal); box-shadow: 0 8px 26px color-mix(in srgb, var(--teal) 24%, transparent); }
+        .feat-top { display: flex; align-items: center; gap: 8px; }
+        .feat-emoji { font-size: 1.25rem; }
+        .feat-badge {
+            margin-left: auto; background: var(--teal); color: #fff; font-size: .58rem; font-weight: 700;
+            letter-spacing: .06em; text-transform: uppercase; padding: 2px 7px; border-radius: 5px;
+        }
+        .feat-title { font-weight: 600; font-size: .92rem; color: var(--ink); line-height: 1.32; text-wrap: balance; }
+        .feat-sub { font-size: .76rem; color: var(--slate); line-height: 1.45; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+        .feat-when { margin-top: auto; padding-top: 2px; font-size: .7rem; color: var(--slate); opacity: .85; font-family: var(--mono); }
+        .feat-more {
+            display: block; text-align: center; margin-top: 10px; font-size: .8rem; font-weight: 600; color: var(--slate);
+            padding: 7px; border-radius: 8px; transition: color .15s, background .15s;
+        }
+        .feat-more:hover { color: var(--teal); background: var(--accent-bg); }
+
         /* ── Tiles (publications) ── */
         .tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
         .tile {
@@ -313,7 +338,7 @@
         /* ── Print / Save-as-PDF ── */
         @media print {
             #sticky-nav, #scroll-progress, .theme-btn, .top-btn, .cover, .hero-actions, .about-jump { display: none !important; }
-            body::before, body::after { display: none !important; }
+            body::before, body::after, #latest-posts { display: none !important; }
             .tile-iw, .tile-badge { display: none !important; }
             .tile { background: #fff !important; border-color: #ccc !important; box-shadow: none !important; break-inside: avoid; }
             .tile-lbl { color: #111 !important; }
@@ -350,6 +375,7 @@
                 <a href="#publications">Publications</a>
                 <a href="#certifications">Certifications</a>
                 <a href="#links-section">Links</a>
+                <a href="links.html">Link Hub</a>
             </span>
             <a class="sn-cta" href="https://www.linkedin.com/in/dielle-d-350a0b186" target="_blank" rel="noopener noreferrer">Connect</a>
         </div>
@@ -453,6 +479,13 @@
             </p>
         </div>
 
+        <!-- Latest posts (filled from the blog feed by blog.js; stays hidden if it can't load) -->
+        <div id="latest-posts" data-blog-section hidden>
+            <div class="section-label" id="posts">Latest Posts</div>
+            <div class="feat-grid" data-blog-feed data-count="4"></div>
+            <a class="feat-more" href="https://ddenoon.blogspot.com/" target="_blank" rel="noopener noreferrer">More on the blog →</a>
+        </div>
+
         <!-- Featured Project -->
         <div class="section-label reveal in" id="featured-project">Featured Project</div>
         <div class="featured-project reveal in">
@@ -512,6 +545,11 @@
         <!-- Links -->
         <div class="section-label reveal in" id="links-section">Links</div>
         <div class="ltr reveal in">
+            <a class="lti" href="links.html">
+                <div class="lti-icon" aria-hidden="true">🔗</div>
+                <div class="lti-name">Link Hub — everything I'm sharing, on one page</div><span class="lti-arrow">→</span>
+            </a>
+
             <div class="ltr-group">Platforms</div>
             <a class="lti" href="https://github.com/Gear-I" target="_blank" rel="noopener noreferrer">
                 <div class="lti-icon" aria-hidden="true">🐙</div>
@@ -564,6 +602,7 @@
     </button>
 
     <script src="repos.js"></script>
+    <script src="blog.js"></script>
     <script>
         // ── Theme toggle ──
         const root = document.documentElement;
@@ -607,7 +646,9 @@
         const stickyNav = document.getElementById('sticky-nav');
         const topBtn = document.getElementById('top-btn');
         const navLinks = document.querySelectorAll('.sn-links a');
-        const sections = Array.from(navLinks).map(a => document.querySelector(a.getAttribute('href')));
+        const sections = Array.from(navLinks)
+            .filter(a => a.getAttribute('href').startsWith('#'))
+            .map(a => document.querySelector(a.getAttribute('href')));
 
         window.addEventListener('scroll', () => {
             const scrollTop = window.scrollY;
